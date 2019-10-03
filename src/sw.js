@@ -7,6 +7,11 @@ if ('function' === typeof importScripts) {
   if (workbox) {
     console.log('Workbox is loaded');
 
+    workbox.core.setCacheNameDetails({
+      prefix: 'snpt',
+      suffix: 'v1'
+    });
+
     /* injection point for manifest files.  */
     workbox.precaching.precacheAndRoute([]);
 
@@ -14,6 +19,13 @@ if ('function' === typeof importScripts) {
     workbox.routing.registerNavigationRoute('/index.html', {
       blacklist: [/^\/_/, /\/[^\/]+\.[^\/]+$/]
     });
+
+    workbox.routing.registerRoute(
+      /\.(?:css)$/,
+      new workbox.strategies.StaleWhileRevalidate({
+        cacheName: 'snpt-styles'
+      })
+    );
 
     workbox.routing.registerRoute(
       /\.(?:png|gif|jpg|jpeg)$/,
