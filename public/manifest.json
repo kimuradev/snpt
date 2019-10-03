@@ -3,7 +3,7 @@
   "short_name": "Snpt",
   "theme_color": "#000",
   "background_color": "#ffffff",
-  "display": "browser",
+  "display": "standalone",
   "Scope": "/",
   "start_url": "/",
   "icons": [
