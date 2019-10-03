@@ -1,20 +1,33 @@
-var cacheName = 'snpt';
-var filesToCache = ['/', '/index.html', '/css/style.css', '/js/main.js'];
-
-/* Start the service worker and cache all of the app's content */
-window.addEventListener('install', function(e) {
-  e.waitUntil(
-    caches.open(cacheName).then(function(cache) {
-      return cache.addAll(filesToCache);
-    })
+if ('function' === typeof importScripts) {
+  /* eslint-disable-next-line */
+  importScripts(
+    'https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js'
   );
-});
+  /* global workbox */
+  if (workbox) {
+    console.log('Workbox is loaded');
 
-/* Serve cached content when offline */
-window.addEventListener('fetch', function(e) {
-  e.respondWith(
-    caches.match(e.request).then(function(response) {
-      return response || fetch(e.request);
-    })
-  );
-});
+    /* injection point for manifest files.  */
+    workbox.precaching.precacheAndRoute([]);
+
+    /* custom cache rules*/
+    workbox.routing.registerNavigationRoute('/index.html', {
+      blacklist: [/^\/_/, /\/[^\/]+\.[^\/]+$/]
+    });
+
+    workbox.routing.registerRoute(
+      /\.(?:png|gif|jpg|jpeg)$/,
+      workbox.strategies.cacheFirst({
+        cacheName: 'images',
+        plugins: [
+          new workbox.expiration.Plugin({
+            maxEntries: 60,
+            maxAgeSeconds: 30 * 24 * 60 * 60 // 30 Days
+          })
+        ]
+      })
+    );
+  } else {
+    console.log('Workbox could not be loaded. No Offline support');
+  }
+}
